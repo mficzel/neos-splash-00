@@ -5,7 +5,7 @@
 
 # Neos CMS / Flow Framework Installer
 
-Installs a new  []Neos CMS / Flow Framework](https://www.neos.io) skeleton project by using `composer create-project`.
+Creates a new [Neos CMS / Flow Framework](https://www.neos.io) project distribution by using `composer create-project`.
 
 
 ## Usage
@@ -26,7 +26,7 @@ These will be removed at the end of the installation process.
 Start the php built-in webserver:
 
 ```bash
-cd /path/to/new-project/public
+cd /path/to/new-project
 ./flow server:run
 ```
 
