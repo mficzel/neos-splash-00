@@ -1,0 +1,28 @@
+{
+  "name": "neos/installer",
+  "description": "Installs Neos CMS / Flow projects by using composer create-project",
+  "type": "project",
+  "require": {
+    "php": ">=7.0",
+    "symfony/console": "3.2.1",
+    "composer/composer": "^1.5.2"
+  },
+  "scripts": {
+    "post-create-project-cmd": "Neos\\Installer\\Installer::postCreateProject"
+  },
+  "license": "MIT",
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Neos\\Installer\\": "Installer/"
+    }
+  },
+  "config": {
+    "vendor-dir": "temp-vendor"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.0"
+    }
+  }
+}
