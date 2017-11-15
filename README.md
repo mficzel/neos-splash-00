@@ -1,5 +1,3 @@
-[![PHP >= 7.0](https://img.shields.io/badge/PHP-%3E%3D7.0-8892bf.svg)](https://php.net)
-[![Join the chat at https://gitter.im/icehawk/installer](https://badges.gitter.im/icehawk/installer.svg)](https://gitter.im/icehawk/installer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ![Neos CMS & Flow Framework ](https://avatars3.githubusercontent.com/u/11575267?s=400&v=4)
 
