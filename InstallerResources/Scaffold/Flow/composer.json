@@ -1,7 +1,8 @@
 {
     "name": "neos/neos-base-distribution",
     "description": "Flow Base Distribution",
-    "license": "GPL-3.0+",
+    "type": "project",
+    "license": "MIT",
     "config": {
         "vendor-dir": "Packages/Libraries",
         "bin-dir": "bin"

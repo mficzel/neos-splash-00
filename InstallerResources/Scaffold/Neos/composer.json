@@ -2,6 +2,7 @@
     "name": "neos/neos-base-distribution",
     "description": "Neos Base Distribution",
     "license": "GPL-3.0+",
+    "type": "project",
     "config": {
         "vendor-dir": "Packages/Libraries",
         "bin-dir": "bin"

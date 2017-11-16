@@ -1,7 +1,8 @@
 {
   "name": "neos/installer",
-  "description": "Installs Neos CMS / Flow projects by using composer create-project",
+  "description": "Create Neos CMS / Flow project-distribution by using composer create-project",
   "type": "project",
+  "license": "MIT",
   "require": {
     "php": ">=7.0",
     "symfony/console": "3.2.1",
