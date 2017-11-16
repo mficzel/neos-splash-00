@@ -37,37 +37,37 @@ final class InstallInteractive extends Command
         $this->composer = $composer;
     }
 
-    protected function execute( InputInterface $input, OutputInterface $output )
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $style = new SymfonyStyle( $input, $output );
+        $style = new SymfonyStyle($input, $output);
 
-        $style->title( 'Welcome to the Neos installer.' );
-        $style->section( 'Please answer the following questions.' );
+        $style->title('Welcome to the Neos installer.');
+        $style->section('Please answer the following questions.');
 
         $projectType = $style->choice('Select the project-type', ['Neos', 'Flow'], 'Neos');
 
-        $vendorNamespace = $style->ask( 'What is your vendor namespace?', 'MyVendor' );
-        $projectName = $style->ask( 'What is your project namespace?', 'MyProject' );
+        $vendorNamespace = $style->ask('What is your vendor namespace?', 'MyVendor');
+        $projectName = $style->ask('What is your project namespace?', 'MyProject');
 
         // main package
-        $mainPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType, 'AvailablePackages' , 'main.json'] ));
+        $mainPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR, [self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType, 'AvailablePackages' , 'main.json']));
         $mainPackageKeys = array_keys($mainPackages);
         $mainPackageTemplateKey = $style->choice('Select the main package template ', $mainPackageKeys, $mainPackageKeys[0]);
 
         // extra packages
         $requiredExtraPackageKeys= [];
-        $extraPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType, 'AvailablePackages' , 'extra.json'] ));
+        $extraPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR, [self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType, 'AvailablePackages' , 'extra.json']));
         $extraPackageKeys = array_keys($extraPackages);
         $installExtraPackages  = true;
-        while ( $installExtraPackages ) {
-            $installExtraPackages = $style->confirm( 'Do you want to install extra packages?', false );
+        while ($installExtraPackages) {
+            $installExtraPackages = $style->confirm('Do you want to install extra packages?', false);
             if ($installExtraPackages) {
                 $requiredExtraPackageKeys[] = $style->choice('Select the package you want to add', $extraPackageKeys);
             }
         }
 
         // confirm
-        $style->section( 'Summary:' );
+        $style->section('Summary:');
         $style->table(
             [],
             [
@@ -87,11 +87,10 @@ final class InstallInteractive extends Command
             'Yes'
         );
 
-        switch ( $installNow )
-        {
+        switch ($installNow) {
             case 'Yes':
             {
-                $style->text(sprintf( 'Creating your %s-distribution now.', $projectType));
+                $style->text(sprintf('Creating your %s-distribution now.', $projectType));
 
                 $packageKey = $vendorNamespace . '.' . $projectName;
                 $composerName = strtolower($vendorNamespace) . '/' . strtolower(str_replace('.', '-', $projectName));
@@ -99,35 +98,35 @@ final class InstallInteractive extends Command
                 // build distribution skeleton
                 $this->removeFilesFromDistributionRoot();
                 $this->copyDistributionSkeleton($projectType);
-                $this->createMainPackage( $composerName, $packageKey, $mainPackages[$mainPackageTemplateKey]['name'], $mainPackages[$mainPackageTemplateKey]['version'] );
-                $this->adjustMainComposerJson( $projectType, $composerName, $requiredExtraPackageKeys, $extraPackages);
+                $this->createMainPackage($composerName, $packageKey, $mainPackages[$mainPackageTemplateKey]['name'], $mainPackages[$mainPackageTemplateKey]['version']);
+                $this->adjustMainComposerJson($projectType, $composerName, $requiredExtraPackageKeys, $extraPackages);
 
                 // install
                 $this->installComponents();
                 $this->removeInstaller();
 
-                $style->success( 'Your distribution was prepared successfully.' );
-                $style->text( '' );
-                $style->text( 'For local development you still have to:' );
-                $style->text( '' );
-                $style->text( '1. Add database credentials to Configuration/Development/Settings.yaml' );
-                $style->text( '2. Migrate databse "./flow doctrine:migrate"' );
-                $style->text( '3. Migrate databse "./flow site:import --package-key ' . $packageKey . ' "' );
-                $style->text( '4. Start the Webserver "./flow server:run"' );
+                $style->success('Your distribution was prepared successfully.');
+                $style->text('');
+                $style->text('For local development you still have to:');
+                $style->text('');
+                $style->text('1. Add database credentials to Configuration/Development/Settings.yaml');
+                $style->text('2. Migrate databse "./flow doctrine:migrate"');
+                $style->text('3. Migrate databse "./flow site:import --package-key ' . $packageKey . ' "');
+                $style->text('4. Start the Webserver "./flow server:run"');
 
                 break;
             }
             case 'Change settings':
             {
-                $command = $this->getApplication()->find( 'install:interactive' );
+                $command = $this->getApplication()->find('install:interactive');
 
-                return $command->execute( $input, $output );
+                return $command->execute($input, $output);
 
                 break;
             }
             case 'Cancel installation':
             {
-                $style->error( 'Installation canceled.' );
+                $style->error('Installation canceled.');
 
                 return 9;
             }
@@ -157,8 +156,8 @@ final class InstallInteractive extends Command
     {
         $sourceDirectory = implode(DIRECTORY_SEPARATOR, [self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType]);
         foreach (new \DirectoryIterator($sourceDirectory) as $fileInfo) {
-            if($fileInfo->isFile()) {
-                @copy($fileInfo->getPathname(), self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . $fileInfo->getFilename() );
+            if ($fileInfo->isFile()) {
+                @copy($fileInfo->getPathname(), self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . $fileInfo->getFilename());
             }
         }
     }
@@ -197,7 +196,7 @@ final class InstallInteractive extends Command
      * @param array  $requiredPackageKeys
      * @param array  $requiredPackageKeys
      */
-    private function adjustMainComposerJson($projectType, $composerName, array $requiredPackageKeys, array $packageInfos )
+    private function adjustMainComposerJson($projectType, $composerName, array $requiredPackageKeys, array $packageInfos)
     {
         $composerJsonDelta = [
             'name' =>  $composerName . '-distribution',
@@ -212,8 +211,7 @@ final class InstallInteractive extends Command
             ]
         ];
 
-        foreach ($requiredPackageKeys as $packageKey)
-        {
+        foreach ($requiredPackageKeys as $packageKey) {
             if (array_key_exists($packageKey, $packageInfos)) {
                 $info = $packageInfos[$packageKey];
                 $composerJsonDelta['require'][$info['name']] = $info['version'];
@@ -228,7 +226,7 @@ final class InstallInteractive extends Command
      */
     private function installComponents()
     {
-        $composerCommand = escapeshellcmd( $_SERVER['argv'][0] );
+        $composerCommand = escapeshellcmd($_SERVER['argv'][0]);
         $command = 'cd ' . self::BASE_DIRECTORY . ' && ' . $composerCommand . ' update';
         shell_exec($command);
     }
@@ -238,9 +236,9 @@ final class InstallInteractive extends Command
      */
     private function removeInstaller()
     {
-        foreach (['InstallerVendor', 'InstallerResources', 'Installer'] as $folderToRemove ) {
+        foreach (['InstallerVendor', 'InstallerResources', 'Installer'] as $folderToRemove) {
             $path = self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . $folderToRemove;
-            shell_exec( 'rm -rf ' . escapeshellarg(realpath($path)));
+            shell_exec('rm -rf ' . escapeshellarg(realpath($path)));
         }
     }
 }

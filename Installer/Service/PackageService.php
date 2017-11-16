@@ -20,9 +20,9 @@ class PackageService
      */
     public static function downloadPackageWithComposer(Composer $composer, $packageKey, $versionConstraint, $path)
     {
-         /**
-          * @var RepositoryManager $repositoryManager
-          */
+        /**
+         * @var RepositoryManager $repositoryManager
+         */
         $repositoryManager = $composer->getRepositoryManager();
 
         /**
@@ -34,7 +34,7 @@ class PackageService
              * @var DownloadManager $downloadManager
              */
             $downloadManager = $composer->getDownloadManager();
-            $downloadManager->download($package, $path , false);
+            $downloadManager->download($package, $path, false);
         } else {
             throw new InstallerException(sprintf('package %s was not found or could not satisfy version constraint %s', $packageKey, $versionConstraint));
         }
@@ -47,9 +47,10 @@ class PackageService
      * @param $newPackageNamespace
      * @throws \Exception
      */
-    public static function alterPackageNamespace( $path, $newPackageName, $newPackageKey, $newPackageNamespace ) {
+    public static function alterPackageNamespace($path, $newPackageName, $newPackageKey, $newPackageNamespace)
+    {
         // read composer json
-        $packageJson = JsonFileService::readFile( $path . DIRECTORY_SEPARATOR . 'composer.json');
+        $packageJson = JsonFileService::readFile($path . DIRECTORY_SEPARATOR . 'composer.json');
 
         // determine old name
         $oldPackageName = Arrays::getValueByPath($packageJson, 'name');
@@ -62,7 +63,7 @@ class PackageService
         if ($psr4namespaces = Arrays::getValueByPath($packageJson, 'autoload.psr-4')) {
             $namespaces = array_keys($psr4namespaces);
             $oldPackageNamespace = trim($namespaces[0], '\\');
-        } else if ($psr0namespaces = Arrays::getValueByPath($packageJson, 'autoload.psr-0')) {
+        } elseif ($psr0namespaces = Arrays::getValueByPath($packageJson, 'autoload.psr-0')) {
             $namespaces = array_keys($psr0namespaces);
             $oldPackageNamespace = trim($namespaces[0], '\\');
         }
@@ -97,6 +98,5 @@ class PackageService
                 ]
             ]
         );
-
     }
 }

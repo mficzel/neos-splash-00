@@ -10,7 +10,8 @@ class JsonFileService
      * @param string $filename
      * @return array
      */
-    public static function readFile($filename) {
+    public static function readFile($filename)
+    {
         $json = json_decode(file_get_contents($filename), true);
         return $json;
     }
@@ -19,10 +20,11 @@ class JsonFileService
      * @param string $filename
      * @return array
      */
-    public static function writeFile($filename, $json) {
+    public static function writeFile($filename, $json)
+    {
         file_put_contents(
             $filename,
-            json_encode( $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES )
+            json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
     }
 
@@ -30,10 +32,10 @@ class JsonFileService
      * @param string $filename
      * @param array $delta
      */
-    public static function modifyFile($filename, array $delta) {
+    public static function modifyFile($filename, array $delta)
+    {
         $json = self::readFile($filename);
         $json = Arrays::arrayMergeRecursiveOverrule($json, $delta);
         self::writeFile($filename, $json);
     }
-
 }
