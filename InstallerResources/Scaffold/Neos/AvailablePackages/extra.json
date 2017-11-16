@@ -7,9 +7,9 @@
     "name": "neos/googleanalytics",
     "version": "~2.0"
   },
-  "Neos.Redirecthandler-Neosadapter": {
-    "name" :"redirecthandler-neosadapter",
-    "version": "~1.0"
+  "Neos.RedirectHandler.NeosAdapter": {
+    "name" :"neos/redirecthandler-neosadapter",
+    "version": "~2.0"
   },
   "Neos.Fusion.Afx": {
     "name": "neos/fusion-afx",
