@@ -1,5 +1,5 @@
 {
-  "name": "neos/installer",
+  "name": "neos/splash",
   "description": "Create Neos CMS / Flow project-distribution by using composer create-project",
   "type": "project",
   "license": "MIT",
@@ -10,13 +10,13 @@
     "composer/composer": "^1.5.2"
   },
   "scripts": {
-    "post-create-project-cmd": "Neos\\Installer\\Installer::postCreateProject"
+    "post-create-project-cmd": "Neos\\Splash\\Installer::postCreateProject"
   },
   "license": "MIT",
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
-      "Neos\\Installer\\": "Installer/"
+      "Neos\\Splash\\": "Installer/"
     }
   },
   "config": {

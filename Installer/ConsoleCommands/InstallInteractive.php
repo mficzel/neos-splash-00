@@ -1,5 +1,5 @@
 <?php
-namespace Neos\Installer\ConsoleCommands;
+namespace Neos\Splash\ConsoleCommands;
 
 use Composer\Downloader\Downloader;
 use Composer\Downloader\DownloadManager;
@@ -10,13 +10,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Composer\Composer;
 use Composer\Repository\RepositoryManager;
 
-use Neos\Installer\Service\PackageService;
-use Neos\Installer\Service\JsonFileService;
+use Neos\Splash\Service\PackageService;
+use Neos\Splash\Service\JsonFileService;
 use Neos\Utility\Arrays;
 
 /**
  * Class InstallInteractive
- * @package Neos\Installer\ConsoleCommands
+ * @package Neos\Splash\ConsoleCommands
  */
 final class InstallInteractive extends Command
 {

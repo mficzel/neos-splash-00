@@ -10,7 +10,7 @@ Creates a new [Neos-CMS / Flow-Framework](https://www.neos.io) project-distribut
 Run command:
 
 ```bash
-composer create-project -n neos/installer __new_project__
+composer create-project -n neos/splash __new_project__
 ```
 
 You will be asked questions regarding your desired distribution.

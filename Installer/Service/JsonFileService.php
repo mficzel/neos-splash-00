@@ -1,5 +1,5 @@
 <?php
-namespace Neos\Installer\Service;
+namespace Neos\Splash\Service;
 
 use Neos\Utility\Arrays;
 

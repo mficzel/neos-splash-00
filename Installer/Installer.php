@@ -1,7 +1,7 @@
 <?php
-namespace Neos\Installer;
+namespace Neos\Splash;
 
-use Neos\Installer\ConsoleCommands\InstallInteractive;
+use Neos\Splash\ConsoleCommands\InstallInteractive;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -12,7 +12,7 @@ require(__DIR__ . '/../InstallerVendor/autoload.php');
 
 /**
  * Class Installer
- * @package Neos\Installer
+ * @package Neos\Splash
  */
 final class Installer
 {

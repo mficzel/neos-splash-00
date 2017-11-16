@@ -1,5 +1,5 @@
 <?php
-namespace Neos\Installer;
+namespace Neos\Splash;
 
 class InstallerException extends \Exception
 {

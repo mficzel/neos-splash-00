@@ -1,7 +1,7 @@
 <?php
-namespace Neos\Installer\Service;
+namespace Neos\Splash\Service;
 
-use Neos\Installer\InstallerException;
+use Neos\Splash\InstallerException;
 use Neos\Utility\Arrays;
 use Composer\Composer;
 use Composer\Repository\RepositoryManager;
