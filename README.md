@@ -15,9 +15,9 @@ composer create-project -n neos/splash __new_project__
 
 You will be asked questions regarding your desired distribution.
 
-**Please note:** For reasons of automation the installer initially installs some thrid-party dependencies. 
-These will be removed at the end of the installation process.
+**Please note:** The distribution-builder initially installs some thid-party packages. 
+These are removed at the end of the installation process.
 
 ## Acknowledgements
 
-This installer is inspired by the [Icehawk Installer](https://github.com/icehawk/installer). 
+This distribution-builder is inspired by the [Icehawk Installer](https://github.com/icehawk/installer). 
