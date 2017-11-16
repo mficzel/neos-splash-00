@@ -5,6 +5,7 @@
   "require": {
     "php": ">=7.0",
     "symfony/console": "3.2.1",
+    "neos/utility-arrays": "^4.2.5",
     "composer/composer": "^1.5.2"
   },
   "scripts": {
@@ -18,7 +19,7 @@
     }
   },
   "config": {
-    "vendor-dir": "temp-vendor"
+    "vendor-dir": "InstallerVendor"
   },
   "extra": {
     "branch-alias": {

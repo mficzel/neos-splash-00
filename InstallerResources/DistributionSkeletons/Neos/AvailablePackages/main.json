@@ -1,0 +1,8 @@
+{
+  "Neos.Demo": {
+    "title": "Neos Demo",
+    "description": "The old neos-demo package that shall not be used anymore",
+    "name": "neos/demo",
+    "version": "~3.2.1"
+  }
+}

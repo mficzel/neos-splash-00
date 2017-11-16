@@ -1,0 +1,34 @@
+{
+  "Neos.Seo": {
+    "name": "flowpack/elasticsearch-contentrepositoryadaptor",
+    "version": "~2.0"
+  },
+  "Neos.Redirecthandler-Neosadapter": {
+    "name" :"redirecthandler-neosadapter",
+    "version": "~1.0"
+  },
+  "Neos.Afx": {
+    "name": "neos/afx",
+    "version": "~1.0"
+  },
+  "Flowpack.ElasticSearch.ContentRepositoryAdaptor": {
+    "name": "flowpack/elasticsearch-contentrepositoryadaptor",
+    "version": "~4.0"
+  },
+  "Flowpack.SearchPlugin": {
+    "name": "flowpack/searchplugin",
+    "version": "~4.0"
+  },
+  "Flowpack.SimpleSearch": {
+    "name": "flowpack/simplesearch",
+    "version": "~3.0"
+  },
+  "Sitegeist.Monocle": {
+    "name": "sitegeist/monocle",
+    "version": "~4.0"
+  },
+  "Sitegeist.MagicWand": {
+    "name": "sitegeist/magicwand",
+    "version": "~2.1"
+  }
+}

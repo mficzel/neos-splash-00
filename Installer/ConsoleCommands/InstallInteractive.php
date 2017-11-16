@@ -10,19 +10,19 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Composer\Composer;
 use Composer\Repository\RepositoryManager;
 
+use Neos\Installer\Service\PackageService;
+use Neos\Installer\Service\JsonFileService;
+use Neos\Utility\Arrays;
+
 /**
  * Class InstallInteractive
  * @package Neos\Installer\ConsoleCommands
  */
 final class InstallInteractive extends Command
 {
-    protected $flowAppPackageTemplates = ['Neos.Demo', 'Flowpack.Fusion.BP'];
+    const LOCAL_PACKAGE_PATH = 'LocalPackages';
 
-    protected $flowExtraPackages = ['Flowpack.ElasticSearch.ContentRepositoryAdaptor', 'Sitegeist.Monocle'];
-
-    protected $neosSitePackageTemplates = ['Neos.Demo', 'Flowpack.Fusion.BP'];
-
-    protected $neosExtraPackages = ['Flowpack.ElasticSearch.ContentRepositoryAdaptor', 'Sitegeist.Monocle'];
+    const BASE_DIRECTORY = __DIR__ . '/../..';
 
     /**
      * @var Composer
@@ -44,44 +44,39 @@ final class InstallInteractive extends Command
         $style->title( 'Welcome to the Neos installer.' );
         $style->section( 'Please answer the following questions.' );
 
-        $projectType = $style->choice('Select the project-type', ['neos', 'flow'], 'neos');
+        $projectType = $style->choice('Select the project-type', ['Neos', 'Flow'], 'Neos');
 
         $vendorNamespace = $style->ask( 'What is your vendor namespace?', 'MyVendor' );
         $projectName = $style->ask( 'What is your project namespace?', 'MyProject' );
 
         // main package
-        if ($projectType == 'neos') {
-            $packageTemplate = $style->choice('Select the project-type', $this->neosSitePackageTemplates, $this->neosSitePackageTemplates[0]);
-        } else {
-            $packageTemplate = $style->choice('Select the project-type', $this->flowAppPackageTemplates, $this->flowAppPackageTemplates[0]);
-        }
+        $mainPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'DistributionSkeletons', $projectType, 'AvailablePackages' , 'main.json'] ));
+        $mainPackageKeys = array_keys($mainPackages);
+        $mainPackageTemplateKey = $style->choice('Select the main package template ', $mainPackageKeys, $mainPackageKeys[0]);
 
         // extra packages
-        $extraPackages = [];
-        $installMorePackages  = true;
-        while ( $installMorePackages ) {
-            $installMorePackages = $style->confirm( 'Do you want to install extra packages?', false );
-            if ($installMorePackages) {
-                if ($projectType == 'neos') {
-                    $availablePackages = $this->neosExtraPackages;
-                } else {
-                    $availablePackages = $this->flowExtraPackages;
-                }
-                $extraPackages[] = $style->choice('Select the package you want to add', $availablePackages);
+        $requiredExtraPackageKeys= [];
+        $extraPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'DistributionSkeletons', $projectType, 'AvailablePackages' , 'extra.json'] ));
+        $extraPackageKeys = array_keys($extraPackages);
+        $installExtraPackages  = true;
+        while ( $installExtraPackages ) {
+            $installExtraPackages = $style->confirm( 'Do you want to install extra packages?', false );
+            if ($installExtraPackages) {
+                $requiredExtraPackageKeys[] = $style->choice('Select the package you want to add', $extraPackageKeys);
             }
         }
 
+        // confirm
         $style->section( 'Summary:' );
-
         $style->table(
             [],
             [
                 ['Project Type', $projectType],
                 ['Your namespace', $vendorNamespace . '\\' . $projectName],
-                ['Your package template', $packageTemplate],
+                ['Your package template', $mainPackageTemplateKey],
                 [
                     'Additional packages',
-                    (!empty($extraPackages) ? join( ', ', array_slice( $extraPackages, 1 ) ) : 'none'),
+                    (!empty($requiredExtraPackageKeys) ? implode(', ', $requiredExtraPackageKeys) : 'none'),
                 ]
             ]
         );
@@ -100,17 +95,16 @@ final class InstallInteractive extends Command
 
                 $packageKey = $vendorNamespace . '.' . $projectName;
                 $composerName = strtolower($vendorNamespace) . '/' . strtolower(str_replace('.', '-', $projectName));
-                $localPackagePath = './localPackages';
 
-                $this->createMainPackage($projectType, $composerName, $packageKey, $localPackagePath, $packageTemplate, __DIR__ . '/../..' );
-                $this->buildComposerJson($projectType, $composerName, $packageKey, $localPackagePath, $extraPackages, __DIR__ . '/../..' );
+                // build distribution skeleton
+                $this->removeFilesFromDistributionRoot();
+                $this->copyDistributionSkeleton($projectType);
+                $this->createMainPackage( $composerName, $packageKey, $mainPackages[$mainPackageTemplateKey]['name'], $mainPackages[$mainPackageTemplateKey]['version'] );
+                $this->adjustMainComposerJson( $projectType, $composerName, $requiredExtraPackageKeys, $extraPackages);
 
-                @unlink( __DIR__ . '/../../composer.lock' );
-                @unlink( __DIR__ . '/../../LICENSE' );
-                @unlink( __DIR__ . '/../../README.md' );
-
+                // install
                 $this->installComponents();
-                $this->commitSuicide();
+                $this->removeInstaller();
 
                 $style->success( 'Your distribution was prepared successfully.' );
                 $style->text( '' );
@@ -142,102 +136,111 @@ final class InstallInteractive extends Command
         return 0;
     }
 
-    private function createMainPackage($projectType, $composerName, $packageKey, $localPackagePath, $templatePackageKey, $baseDir)
+    /**
+     * Remove all files from distribution root
+     */
+    private function removeFilesFromDistributionRoot()
     {
-        $jsonTemplateFile = implode(DIRECTORY_SEPARATOR , [$baseDir, 'Resources', 'Private', 'PackageTemplates']) . DIRECTORY_SEPARATOR . $projectType . '.json';
-        $templatePackages = json_decode(file_get_contents($jsonTemplateFile), true);
-
-        /**
-         * @var RepositoryManager $repositoryManager
-         */
-        $repositoryManager = $this->composer->getRepositoryManager();
-
-        if ($templatePackages && array_key_exists($templatePackageKey, $templatePackages)  ) {
-            $templatePackageInfo = $templatePackages[$templatePackageKey];
-
-            /**
-             * PackageInterface
-             */
-            $package = $repositoryManager->findPackage($templatePackageInfo['composerName'], $templatePackageInfo['composerConstraint']);
-
-            /**
-             * @var DownloadManager $downloadManager
-             */
-            $downloadManager = $this->composer->getDownloadManager();
-            $downloadManager->download( $package, $localPackagePath . DIRECTORY_SEPARATOR . $packageKey  , false);
-
-            $sourceNamespace = str_replace(['.','-'], '\\', $templatePackageKey);
-            $targetNamespace = str_replace(['.','-'], '\\', $packageKey);
-            // adjust namespaces
-            $this->replaceValuesInFiles(
-                [
-                    $templatePackageKey => $packageKey,
-                    $templatePackageInfo['composerName'] => $composerName,
-                    $sourceNamespace => $targetNamespace,
-                    str_replace('\\', '\\\\', $sourceNamespace) => str_replace('\\', '\\\\', $targetNamespace)
-                ],
-                $localPackagePath . DIRECTORY_SEPARATOR . $packageKey
-            );
-
+        foreach (new \DirectoryIterator(self::BASE_DIRECTORY) as $fileInfo) {
+            if ($fileInfo->isFile()) {
+                @unlink($fileInfo->getPathname());
+            }
         }
     }
 
-    private function buildComposerJson($projectType, $composerName, $packageKey, $localPackagePath, array $packages, $baseDir )
+    /**
+     * Copy all files from distribution skeletons to the main directory
+     *
+     * @param string $projectType
+     */
+    private function copyDistributionSkeleton($projectType)
     {
-        $jsonTemplateFile = implode(DIRECTORY_SEPARATOR , [$baseDir, 'Resources', 'Private', 'Composer']) . DIRECTORY_SEPARATOR . $projectType . '.json';
-        $json = json_decode(file_get_contents($jsonTemplateFile), true);
-
-        $json['name'] = $composerName . '-distribution';
-        $json['require'][$composerName] = 'dev-master';
-        $json['repositories'][] = [
-            'type' => 'path',
-            'url' => $localPackagePath . DIRECTORY_SEPARATOR . '*'
-        ];
-
-        foreach ( $packages as $package)
-        {
-            $json['require'][ $package ] = '*';
+        $sourceDirectory = implode(DIRECTORY_SEPARATOR, [self::BASE_DIRECTORY, 'InstallerResources', 'DistributionSkeletons', $projectType]);
+        foreach (new \DirectoryIterator($sourceDirectory) as $fileInfo) {
+            if($fileInfo->isFile()) {
+                @copy($fileInfo->getPathname(), self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . $fileInfo->getFilename() );
+            }
         }
+    }
 
-        file_put_contents(
-            $baseDir . DIRECTORY_SEPARATOR . 'composer.json',
-            json_encode( $json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES )
+    /**
+     * Fetch main package-template and transfer to the project and vendor namespace
+     *
+     * @param string $composerName
+     * @param string $packageKey
+     * @param string $templatePackageName
+     * @param string $templatePackageVersion
+
+     */
+    private function createMainPackage($composerName, $packageKey, $templatePackageName, $templatePackageVersion)
+    {
+        PackageService::downloadPackageWithComposer(
+            $this->composer,
+            $templatePackageName,
+            $templatePackageVersion,
+            self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . self::LOCAL_PACKAGE_PATH . DIRECTORY_SEPARATOR . $packageKey
+        );
+
+        PackageService::alterPackageNamespace(
+            self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . self::LOCAL_PACKAGE_PATH . DIRECTORY_SEPARATOR . $packageKey,
+            $composerName,
+            $packageKey,
+            str_replace('.', '\\', $packageKey)
         );
     }
 
-    private function replaceValuesInFiles( array $replacements, string $baseDir )
+    /**
+     * Create the composer.json for the distribution by using the template for the given projectType
+     *
+     * @param string $projectType
+     * @param string $composerName
+     * @param array  $requiredPackageKeys
+     * @param array  $requiredPackageKeys
+     */
+    private function adjustMainComposerJson($projectType, $composerName, array $requiredPackageKeys, array $packageInfos )
     {
-        $dir      = new \RecursiveDirectoryIterator( $baseDir, \FilesystemIterator::SKIP_DOTS );
-        $iterator = new \RecursiveIteratorIterator( $dir );
+        $composerJsonDelta = [
+            'name' =>  $composerName . '-distribution',
+            'require' => [
+                $composerName => 'dev-master'
+            ],
+            'repositories' => [
+                [
+                    'type' => 'path',
+                    'url' => './' . self::LOCAL_PACKAGE_PATH . DIRECTORY_SEPARATOR . '*'
+                ]
+            ]
+        ];
 
-        /** @var \SplFileInfo $item */
-        foreach ( $iterator as $item )
+        foreach ($requiredPackageKeys as $packageKey)
         {
-            if ( !$item->isFile() )
-            {
-                continue;
+            if (array_key_exists($packageKey, $packageInfos)) {
+                $info = $packageInfos[$packageKey];
+                $composerJsonDelta['require'][$info['name']] = $info['version'];
             }
-
-            $content = file_get_contents( $item->getRealPath() );
-            $content = str_replace( array_keys( $replacements ), array_values( $replacements ), $content );
-            file_put_contents( $item->getRealPath(), $content );
         }
+
+        JsonFileService::modifyFile(self::BASE_DIRECTORY . DIRECTORY_SEPARATOR .  'composer.json', $composerJsonDelta);
     }
 
+    /**
+     * Install the new dependencies
+     */
     private function installComponents()
     {
         $composerCommand = escapeshellcmd( $_SERVER['argv'][0] );
-        $targetDir       = escapeshellarg( realpath( __DIR__ . '/../..' ) );
-
-        $command = 'cd ' . $targetDir . ' && ' . $composerCommand . ' update';
-        shell_exec( $command );
+        $command = 'cd ' . self::BASE_DIRECTORY . ' && ' . $composerCommand . ' update';
+        shell_exec($command);
     }
 
-    private function commitSuicide()
+    /**
+     * Remove the installer directories from the folder
+     */
+    private function removeInstaller()
     {
-        $installerDir = escapeshellarg( realpath( __DIR__ . '/../' ) );
-        $vendorDir = escapeshellarg( realpath( __DIR__ . '/../../temp-vendor' ) );
-        shell_exec( 'rm -rf ' . $installerDir );
-        shell_exec( 'rm -rf ' . $vendorDir );
+        foreach (['InstallerVendor', 'InstallerResources', 'Installer'] as $folderToRemove ) {
+            $path = self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . $folderToRemove;
+            shell_exec( 'rm -rf ' . escapeshellarg(realpath($path)));
+        }
     }
 }
