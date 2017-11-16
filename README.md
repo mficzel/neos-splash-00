@@ -1,9 +1,9 @@
 
-![Neos-CMS & Flow-Framework ](https://avatars3.githubusercontent.com/u/11575267?s=400&v=4)
+![Neos & Flow](https://avatars3.githubusercontent.com/u/11575267?s=400&v=4)
 
-# Neos-CMS / Flow-Framework distribution builder
+# Neos / Flow distribution builder
 
-Creates a new [Neos-CMS / Flow-Framework](https://www.neos.io) project-distribution by using `composer create-project`.
+Creates a new [Neos / Flow](https://www.neos.io) project-distribution by using `composer create-project`.
 
 ## Usage
 

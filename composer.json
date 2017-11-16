@@ -1,6 +1,6 @@
 {
   "name": "neos/splash",
-  "description": "Create Neos CMS / Flow project-distribution by using composer create-project",
+  "description": "Create Neos / Flow project-distribution by using composer create-project",
   "type": "project",
   "license": "MIT",
   "require": {
