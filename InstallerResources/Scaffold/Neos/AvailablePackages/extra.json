@@ -1,14 +1,18 @@
 {
   "Neos.Seo": {
-    "name": "flowpack/elasticsearch-contentrepositoryadaptor",
+    "name": "neos/seo",
+    "version": "~2.0"
+  },
+  "Neos.GoogleAnalytics": {
+    "name": "neos/googleanalytics",
     "version": "~2.0"
   },
   "Neos.Redirecthandler-Neosadapter": {
     "name" :"redirecthandler-neosadapter",
     "version": "~1.0"
   },
-  "Neos.Afx": {
-    "name": "neos/afx",
+  "Neos.Fusion.Afx": {
+    "name": "neos/fusion-afx",
     "version": "~1.0"
   },
   "Flowpack.ElasticSearch.ContentRepositoryAdaptor": {
