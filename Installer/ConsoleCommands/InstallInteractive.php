@@ -20,7 +20,7 @@ use Neos\Utility\Arrays;
  */
 final class InstallInteractive extends Command
 {
-    const LOCAL_PACKAGE_PATH = 'LocalPackages';
+    const LOCAL_PACKAGE_PATH = 'DistributionPackages';
 
     const BASE_DIRECTORY = __DIR__ . '/../..';
 
@@ -50,13 +50,13 @@ final class InstallInteractive extends Command
         $projectName = $style->ask( 'What is your project namespace?', 'MyProject' );
 
         // main package
-        $mainPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'DistributionSkeletons', $projectType, 'AvailablePackages' , 'main.json'] ));
+        $mainPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType, 'AvailablePackages' , 'main.json'] ));
         $mainPackageKeys = array_keys($mainPackages);
         $mainPackageTemplateKey = $style->choice('Select the main package template ', $mainPackageKeys, $mainPackageKeys[0]);
 
         // extra packages
         $requiredExtraPackageKeys= [];
-        $extraPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'DistributionSkeletons', $projectType, 'AvailablePackages' , 'extra.json'] ));
+        $extraPackages = JsonFileService::readFile(implode(DIRECTORY_SEPARATOR ,[self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType, 'AvailablePackages' , 'extra.json'] ));
         $extraPackageKeys = array_keys($extraPackages);
         $installExtraPackages  = true;
         while ( $installExtraPackages ) {
@@ -155,7 +155,7 @@ final class InstallInteractive extends Command
      */
     private function copyDistributionSkeleton($projectType)
     {
-        $sourceDirectory = implode(DIRECTORY_SEPARATOR, [self::BASE_DIRECTORY, 'InstallerResources', 'DistributionSkeletons', $projectType]);
+        $sourceDirectory = implode(DIRECTORY_SEPARATOR, [self::BASE_DIRECTORY, 'InstallerResources', 'Scaffold', $projectType]);
         foreach (new \DirectoryIterator($sourceDirectory) as $fileInfo) {
             if($fileInfo->isFile()) {
                 @copy($fileInfo->getPathname(), self::BASE_DIRECTORY . DIRECTORY_SEPARATOR . $fileInfo->getFilename() );
